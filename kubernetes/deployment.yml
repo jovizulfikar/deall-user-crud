@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-crud-env
+data:
+  JWT_SECRET_KEY: ZVd3NUcxaHQ5bEdkc0xldVhBWGR5VGdQT0pER2lyTHY=
+  DATABASE_URL: bW9uZ29kYitzcnY6Ly9qb3ZpenVsZmlrYXI6MlBselBsc0s4N3dyMk5takBjbHVzdGVyMC5tc3h6dWZlLm1vbmdvZGIubmV0L2RlYWxsdXNlcmNydWQ/cmV0cnlXcml0ZXM9dHJ1ZSZ3PW1ham9yaXR5
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-crud-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-crud-app
+  template:
+    metadata:
+      labels:
+        app: user-crud-app
+    spec:
+      containers:
+      - name: user-crud-app
+        image: jovizulfikar/user-crud:v1
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: user-crud-env
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-crud-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-crud-app
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 20
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-crud-app
+  labels:
+    app: user-crud-app
+spec:
+  type: ClusterIP
+  selector:
+    app: user-crud-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+
+
