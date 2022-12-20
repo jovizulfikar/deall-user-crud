@@ -1,6 +1,3 @@
 #!/bin/bash
 
-docker build -t user-crud:v1 .
-docker tag user-crud:v1 jovizulfikar/user-crud:v1
-docker login
-docker push jovizulfikar/user-crud:v1
+docker buildx build --platform linux/amd64,linux/arm64 -t jovizulfikar/user-crud:v1 --push .

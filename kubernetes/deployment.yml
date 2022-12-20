@@ -57,16 +57,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: user-crud-app
-  labels:
-    app: user-crud-app
+  name: user-crud-service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: user-crud-app
   ports:
-  - protocol: TCP
-    port: 80
+  - port: 80
     targetPort: 8000
-
-
